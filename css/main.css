@@ -123,6 +123,8 @@ body, html {
   margin: 0 auto;
   white-space: nowrap;
 
+  transition: all 0s ease;
+
 }
 
 
