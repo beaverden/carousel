@@ -11,7 +11,7 @@
 //carouselDragStart -> detail.carouselId
 //carouselDragEnd -> detail.carouselId
 //carouselDragged -> detail.carouselId, detail.dragAmount
-//carouselMoved -> detail.carouselId, detail.moveAmount, detail.direction
+//carouselMoved -> detail.carouselId, detail.moveAmount
 
 /* Notes
     element.children in IE8 returns comment nodes
@@ -22,69 +22,59 @@ var Carousel = window.Carousel || {};
 Carousel = (function() {
     function Carousel(import_settings) {
         this.settings = {
-        //If the use can spin infinitely to the right or left
-        infiniteSpin: true,
-        //Local settings for infinite spin
-        realFirst: null,
-        realFirstID: 0,
-        copyFirst: null,
-        realLast: null,
-        realLastID: 0,
-        copyLast: null,
-        //If the carousel scroll automatically
-        autoscroll: false,
-        autoscroll_interval: 3000,
+            //If the use can spin infinitely to the right or left
+            infiniteSpin: false,
+            //Local settings for infinite spin
+            realFirst: null,
+            realFirstID: 0,
+            copyFirst: null,
+            realLast: null,
+            realLastID: 0,
+            copyLast: null,
+            //If the carousel scroll automatically
+            autoscroll: false,
+            autoscroll_interval: 3000,
 
-        //If there are not enough objects to fill the container, it will create copies of it
-        fillWithCopies: true,
-        filledWithCopies: false,
+            //If there are not enough objects to fill the container, it will create copies of it
+            fillWithCopies: true,
+            filledWithCopies: false,
 
-        //If the user is allowed to spin the carousel if the objects fill entirely
-        //in the container and don't overflow
-        spinOnLessObjects: true,
+            //If the user is allowed to spin the carousel if the objects fill entirely
+            //in the container and don't overflow
+            spinOnLessObjects: true,
 
-        //direction
-        direction: "horizontal",
+            id: "carousel1",
 
-        id: "carousel1",
-
-        //The amount of time that is passed to the
-        //SetInterval function that changes object every iteration
-        //When the arrow button is holded (mouse pressed)
-        arrowHoldChangeObjectInterval: 100,
+            //The amount of time that is passed to the
+            //SetInterval function that changes object every iteration
+            //When the arrow button is holded (mouse pressed)
+            arrowHoldChangeObjectInterval: 100,
 
 
 
-        //Turn on or off events
-        //If the browser doesn't support events, an console error log will be written
-        events: true,
+            //Turn on or off events
+            //If the browser doesn't support events, an console error log will be written
+            events: true,
 
-        //Global objects
-        carousel: null,
-        movingWrapper: null,
-        moving: null,
-        objects: null,
-        toFirst: null,
-        toLast: null,
+            //Global objects
+            carousel: null,
+            movingWrapper: null,
+            moving: null,
+            objects: null,
+            toFirst: null,
+            toLast: null,
 
-        //The decaying of the inertion after a drag
-        inertionStartSpeed: 20,
+            //The decaying of the inertion after a drag
+            inertionStartSpeed: 20,
 
-        //local
-        totalObjects: 0,
-        previousActiveObject: -1,
-        currentActiveObject: 0,
-        currentRelativePosition: 0,
+            //local
+            totalObjects: 0,
+            previousActiveObject: -1,
+            currentActiveObject: 0,
+            currentRelativePosition: 0,
 
-        //The position of the first element in the initial start (after fill if needed)
-        //It will be used to detect the needed position and reset the carousel to emulate infinite spin
-        firstInitialPosition: 0,
-
-        //The position of the last element in the initial start (after fill if needed)
-        //It will be used to detect the needed position and reset the carousel to emulate infinite spin
-        lastInitialPosition: 0,
-        hasTransform: true,
-    };
+            hasTransform: true,
+        };
 
         //Override the current this.settings
         for (var key in import_settings) {
@@ -163,6 +153,7 @@ Carousel.prototype.init = function() {
     _.settings.moving = _.settings.carousel.querySelector(".moving");
     _.settings.objects = _.settings.carousel.querySelectorAll(".object");
 
+
     //Total number of objects
     _.settings.totalObjects = _.settings.movingWrapper.children.length;
 
@@ -176,11 +167,8 @@ Carousel.prototype.init = function() {
         console.log("Wrong carousel id");
     }
 
-
-
-
-    if (_.settings.direction === "vertical") {
-        elem.className += "lightrousel_vertical";
+    if (_.settings.events == false) {
+        console.log("Lightrousel: Events turned off");
     }
 
     if (_.settings.fillWithCopies) {
@@ -189,8 +177,7 @@ Carousel.prototype.init = function() {
 
     _.settings.hasTransform = _.detectCSSFeature("transform");
 
-    _.settings.firstInitialPosition = _.settings.objects[0].getBoundingClientRect().left;
-    _.settings.lastInitialPosition = _.settings.objects[_.settings.objects.length-1].getBoundingClientRect().right;
+    _.settings.totalObjects = _.settings.objects.length;
 
     if (_.settings.infiniteSpin) {
         if (!_.settings.filledWithCopies) {
@@ -230,8 +217,6 @@ Carousel.prototype.genEventAndDispatch = function(name, detail) {
                 cancelable: true,
             });
             _.settings.carousel.dispatchEvent(e);
-        } else {
-            console.log("Lightrousel: events not supported");
         }
     }
 }
@@ -241,11 +226,14 @@ Carousel.prototype.genEventAndDispatch = function(name, detail) {
 Carousel.prototype.clickEvents = function() {
     var _ = this;
     var clickAction = function(event) {
+        var object = event.srcElement ? event.srcElement : event.target;
+
         _.genEventAndDispatch("objectClicked", {
                 carouselId: _.settings.id,
-                objectId: this.getAttribute("data-id"),
+                objectId: object.getAttribute("data-id"),
         });
-        _.setActive(this.getAttribute("data-id"));
+        var newCurrent = parseInt(object.getAttribute("data-id"));
+        _.setActive(newCurrent);
     }
 
     for (var i = 0; i<_.settings.objects.length; i++) {
@@ -279,28 +267,20 @@ Carousel.prototype.dragEvents = function() {
 
     moving.onmousedown = function(event) {
 
+        if (!event) event = window.event;
+
         _.genEventAndDispatch("carouselDragStart", {
                 carouselId: elem.id
         });
 
-        var currPos = 0;
-        var dir = _.getDirection();
-
-        if (dir == 1) {
-            currPos = event.clientX;
-        } else if (dir == 2) {
-            currPos = event.clientY;
-        }
+        var currPos = event.clientX;
 
         document.onmousemove = function(event) {
-            event.preventDefault ? event.preventDefault() : (event.returnValue = false);
+            if (!event) event = window.event;
 
-            var eventPos = 0;
-            if (dir == 1) {
-                eventPos = event.clientX;
-            } else if (dir == 2) {
-                eventPos = event.clientY;
-            }
+            (event.preventDefault) ? event.preventDefault() : (event.returnValue = false);
+
+            var eventPos = event.clientX;
 
             var diff = eventPos - currPos;
             currPos = eventPos;
@@ -311,11 +291,11 @@ Carousel.prototype.dragEvents = function() {
                 dragAmout: diff,
             });
 
-
             _.translateMoving(diff);
         }
 
         document.onmouseup = function(event) {
+            if (!event) event = window.event;
 
             document.onmousemove = null;
             document.onmouseup = null;
@@ -362,6 +342,7 @@ Carousel.prototype.clickEventsArrows = function() {
     var _ = this,
         toFirst = _.settings.toFirst,
         toLast  = _.settings.toLast;
+
 
     if (toFirst.addEventListener) {
 
@@ -436,19 +417,19 @@ Carousel.prototype.showObject = function(objIndex, showAsFirst) {
 
         movingWrapperRect = movingWrapper.getBoundingClientRect(),
         objectRect = object.getBoundingClientRect(),
-
         objectFirst,
         objectSecond,
         movingWFirst,
-        movingWSecond,
-        dir = _.getDirection();
+        movingWSecond;
 
+    movingWrapperRect = movingWrapper.getBoundingClientRect(); // ie8 double-call
+    objectRect = object.getBoundingClientRect(); // ie8 - double-call
 
-    objectFirst = (dir == 1) ? objectRect.left : objectRect.top;
-    objectSecond = (dir == 1) ? objectRect.right : objectRect.bottom;
+    objectFirst  = objectRect.left;
+    objectSecond = objectRect.right;
 
-    movingWFirst = (dir == 1) ? movingWrapperRect.left : movingWrapperRect.top;
-    movingWSecond = (dir == 1) ? movingWrapperRect.right : movingWrapperRect.bottom;
+    movingWFirst  = movingWrapperRect.left;
+    movingWSecond = movingWrapperRect.right;
 
     var nextPos = _.settings.currentRelativePosition; // in case no need for there is not need for showing
 
@@ -464,10 +445,12 @@ Carousel.prototype.showObject = function(objIndex, showAsFirst) {
         nextPos = movingWFirst - objectFirst;
     }
 
-    if (dir == 1) {
-        _.applyCSS(moving, "transform", "translate3d(" + nextPos + "px,0px, 0px)");
-    } else {
-        _.applyCSS(moving, "transform", "translate3d(0px, " + nextPos + "px, 0px)");
+
+    if (_.settings.hasTransform) {
+        _.applyCSS(moving, "transform", "translate3d(" + nextPos + "px, 0px, 0px)");
+    }
+    else {
+        _.applyCSS(moving, "left", nextPos + "px");
     }
 
     _.settings.currentRelativePosition = nextPos;
@@ -481,6 +464,7 @@ Carousel.prototype.showObject = function(objIndex, showAsFirst) {
 //Active keyword in the class is reserved
 Carousel.prototype.setActive = function(newActive) {
     var _ = this;
+    newActive = parseInt(newActive);
 
     var oldObj = _.settings.objects[_.settings.currentActiveObject];
     oldObj.className = oldObj.className.replace(" active", "");
@@ -501,43 +485,11 @@ Carousel.prototype.setActiveAndShow = function(objId, showAsFirst) {
     _.showObject(objId, showAsFirst);
 }
 
-Carousel.prototype.moveToPrevious = function() {
-    var _ = this;
-    var currentActive = _.settings.currentActiveObject;
-    if (currentActive > 0) {
-        currentActive--;
-        _.settings.currentActiveObject--;
-    }
-    else {
-        currentActive = _.settings.totalObjects - 1;
-    }
-    _.settings.previousActiveObject = _.settings.currentActiveObject;
-    _.settings.curretActiveObject = currentActive;
-}
-
-Carousel.prototype.moveToNext = function() {
-    var _ = this;
-    var currentActive = _.settings.currentActiveObject;
-    currentActive++;
-    if (currentActive == _.settings.totalObjects) {
-        currentActive = 0;
-    }
-    _.settings.previousActiveObject = _.settings.currentActiveObject;
-    _.settings.curretActiveObject = currentActive;
-}
 /* END SETTERS */
 
 
 
 /* GETTERS */
-//Horizontal = 1
-//Vertical = 2
-Carousel.prototype.getDirection = function() {
-    var _ = this;
-
-    return (_.settings.direction === "horizontal" ? 1 : 2);
-
-}
 
 //Returns the Id the of the object that is previous to the current one
 Carousel.prototype.getPreviousObjectId = function() {
@@ -564,12 +516,12 @@ Carousel.prototype.getNextObjectId = function() {
 
 
 /*
-    Makes three copies of the initial array
-    COPYLEFT | MAIN | COPYRIGHT
-    copyFirst .. | realFirst .. realLast | .. copyLast
-    when copyFirst or copyLast gets reached by the spin
-    the main moving part gets reseted to it's real copy,
-    this way, you can infinitely spin in the same direction
+Makes three copies of the initial array
+COPYLEFT | MAIN | COPYRIGHT
+copyFirst .. | realFirst .. realLast | .. copyLast
+when copyFirst or copyLast gets reached by the spin
+the main moving part gets reseted to it's real copy,
+this way, you can infinitely spin in the same direction
 */
 Carousel.prototype.infiniteSpin = function() {
     var _ = this,
@@ -625,28 +577,32 @@ Carousel.prototype.infiniteSpin = function() {
 Carousel.prototype.copyElementsReached = function() {
 
     var _ = this,
-        dir = _.getDirection(),
         copyFirst = _.settings.copyFirst,
         copyLast  = _.settings.copyLast,
         first     = _.settings.realFisrt,
-        last      = _.settings.realLast,
-        cfb       = copyFirst.getBoundingClientRect(),
-        crb       = copyLast.getBoundingClientRect(),
-        movingWRect = _.settings.movingWrapper.getBoundingClientRect(),
-        copyFirstPos = (dir == 1) ? cfb.left : cfb.top,
-        copyLastPos  = (dir == 1) ? crb.right : crb.bottom,
-        movingWRectPosFirst = (dir == 1) ? movingWRect.left : movingWRect.right,
-        movingWRectPosLast = (dir == 1) ? movingWRect.right : movingWRect.bottom;
+        last      = _.settings.realLast;
+
+    var cfb       = copyFirst.getBoundingClientRect();
+    cfb = copyFirst.getBoundingClientRect(); //ie8 double-call
+    var crb       = copyLast.getBoundingClientRect();
+    crb = copyLast.getBoundingClientRect(); //ie8 double-call
+    var movingWRect = _.settings.movingWrapper.getBoundingClientRect();
+    movingWRect =  _.settings.movingWrapper.getBoundingClientRect();  //ie8 double-call
 
 
-        if (copyFirstPos > movingWRectPosFirst) {
-            _.showObject(_.settings.realLastID, false);
-            return true;
-        }
-        if (copyLastPos < movingWRectPosLast) {
-            _.showObject(_.settings.realFirstID, false);
-            return true;
-        }
+    var copyFirstPos = cfb.left,
+        copyLastPos  = crb.right,
+        movingWRectPosFirst = movingWRect.left,
+        movingWRectPosLast  = movingWRect.right;
+
+    if (copyFirstPos > movingWRectPosFirst) {
+        _.showObject(_.settings.realLastID, false);
+        return true;
+    }
+    if (copyLastPos < movingWRectPosLast) {
+        _.showObject(_.settings.realFirstID, false);
+        return true;
+    }
     return false;
 }
 
@@ -654,7 +610,6 @@ Carousel.prototype.copyElementsReached = function() {
 //Moves the "moving" element of the structure.
 //It goes to the left in the positive direction or in the negative,
 //Respectively moving left and right
-//If the direction is vertical, it will move into top direction
 //It will fire the [carouselMoved] event
 Carousel.prototype.translateMoving = function(diff) {
     var _ = this;
@@ -667,34 +622,21 @@ Carousel.prototype.translateMoving = function(diff) {
         return true;
     }
 
-    if (_.checkInterval(diff) || _.settings.spinOnLessObjects) {
+    if (_.checkInterval(diff)) {
         _.genEventAndDispatch("carouselMoved", {
             carouselId: elem.id,
             moveAmount: diff,
-            direction: _.settings.direction,
         });
 
-        var dir = _.getDirection();
 
         //If horizontal, move left,
         //If vertical, move top
         _.settings.currentRelativePosition += diff;
         if (_.settings.hasTransform) {
-            if (dir == 1) {
-
-                _.applyCSS(moving, "transform", "translate3d("+ _.settings.currentRelativePosition +"px,0px, 0px)");
-
-            } else if (dir == 2) {
-                _.applyCSS(moving, "transform", "translate3d(0px,"+ _.settings.currentRelativePosition + "px, 0px)");
-            }
+            _.applyCSS(moving, "transform", "translate3d("+ _.settings.currentRelativePosition +"px, 0px, 0px)");
         } else {
-            if (dir == 1) {
-                _.applyCSS(moving, "left", _.settings.currentActivePosition + "px");
-            } else if (dir == 2) {
-                _.applyCSS(moving, "top", _.settings.currentActivePosition + "px");
-            }
+            _.applyCSS(moving, "left", _.settings.currentRelativePosition + "px");
         }
-
     }
 }
 
@@ -702,7 +644,6 @@ Carousel.prototype.translateMoving = function(diff) {
 Carousel.prototype.spinInertion = function(lastDiff) {
     var _ = this;
     var diff = (lastDiff < 0) ? -(_.settings.inertionStartSpeed) : _.settings.inertionStartSpeed;
-    var dir = _.getDirection();
 
     var timer = setInterval(function() {
         _.translateMoving(diff);
@@ -723,34 +664,43 @@ Carousel.prototype.checkInterval = function(diff) {
     var movingWrapper = _.settings.movingWrapper;
     var moving = _.settings.moving;
 
-    var dir = _.getDirection();
+    var objectDimension = moving.querySelector(".object").offsetWidth;
 
-    var objectDimension = (dir == 1) ?  moving.querySelector(".object").offsetWidth :
-                                        moving.querySelector(".object").offsetHeight;
+    var mFirst = moving.getBoundingClientRect().left;
 
-    var mFirst = (dir == 1) ?   moving.getBoundingClientRect().left:
-                                moving.getBoundingClientRect().top;
+    var mLast  = moving.getBoundingClientRect().right;
 
-    var mLast  = (dir == 1) ?   moving.getBoundingClientRect().right:
-                                moving.getBoundingClientRect().bottom;
+    var wFirst = movingWrapper.getBoundingClientRect().left;
 
-    var wFirst = (dir == 1) ?   movingWrapper.getBoundingClientRect().left:
-                                movingWrapper.getBoundingClientRect().top;
+    var wLast  = movingWrapper.getBoundingClientRect().right;
+    // ie8 double-calls
+    mFirst = moving.getBoundingClientRect().left;
 
-    var wLast  = (dir == 1) ?   movingWrapper.getBoundingClientRect().right:
-                                movingWrapper.getBoundingClientRect().bottom;
+    mLast  = moving.getBoundingClientRect().right;
+
+    wFirst = movingWrapper.getBoundingClientRect().left;
+
+    wLast  = movingWrapper.getBoundingClientRect().right;
 
     //If the drag or touch direction was to the first element (negative)
     //Or to the last element (positive)
-    var toFirst = (diff < 0);
+
+    var toFirst = (diff > 0);
     var toLast = !toFirst;
 
-                    //It worn't go further than first element and further than the last one
-    var response =  (toLast && mFirst + diff < wFirst) || (toFirst && mLast + diff > wLast)
-                    &&
-                    //If the moving part fits totally in the wrapper, it will not move
-                    //Except if spinOnLessObjects is set to true
-                    (mLast > wLast || mFirst < wFirst || _.settings.spinOnLessObjects)
+    //It worn't go further than first element and further than the last one
+    //If moving toLast
+    var response = (toLast && mLast + diff > wFirst) && (mLast - objectDimension > wFirst);
+    //If moving toFirst
+    response |= (toFirst && mFirst + diff < wLast) && (mFirst + objectDimension < wLast);
+
+    //If the moving part fits totally in the wrapper, it will not move
+    //Unless the spinOnLessObjects is set to true
+    if (_.settings.spinOnLessObjects == false
+       && (mFirst > wFirst && mLast < wLast)) {
+        response = false;
+    }
+
     return response;
 
 }
@@ -759,11 +709,13 @@ Carousel.prototype.fillWithCopies = function() {
 
 
     var _ = this,
-        newObjectArray = [],
-        movingWrapper = _.settings.movingWrapper,
-        movingWRect = movingWrapper.getBoundingClientRect(),
-        dir = _.getDirection();
+        newObjectArray = [];
+
+    var movingWRect = _.settings.movingWrapper.getBoundingClientRect();
+    movingWRect = _.settings.movingWrapper.getBoundingClientRect(); // Ie8 double-call
+
     _.settings.filledWithCopies = true;
+
 
     for (var i = 0; i<_.settings.objects.length; i++) {
         var object = _.settings.objects[i];
@@ -777,9 +729,11 @@ Carousel.prototype.fillWithCopies = function() {
         var lastObject = newObjectArray[newObjectArray.length-1];
 
         var lastObjectRect = lastObject.getBoundingClientRect();
+        lastObjectRect = lastObject.getBoundingClientRect(); // Ie8 double-call
 
-        var lastParam = (dir == 1) ? lastObjectRect.right : lastObjectRect.bottom;
-        var movingWParam = (dir == 1) ? movingWRect.right : movingWRect.bottom;
+        var lastParam = lastObjectRect.right
+        var movingWParam = movingWRect.right;
+
 
 
         if (lastParam < movingWParam) {
@@ -809,15 +763,22 @@ Carousel.prototype.fillWithCopies = function() {
 }
 
 
-Carousel.prototype.applyCSS = function(element, key, value, needsPrefixes) {
-    element.style[key] = value;
-    var prefixes = ["Webkit", "Moz", "ms", "O"];
+//Accepts as keys only transform, left, right
+Carousel.prototype.applyCSS = function(element, key, value) {
 
-    if (needsPrefixes) {
-        key[0] = key[0].toUpperCase();
-        for (var prefix in prefixes) {
-            element.style[prefix + key] = value;
-        }
+    if (key == "transform") {
+        element.style.WebkitTransform = value;
+        element.style.MozTransform = value;
+        element.style.msTransform = value;
+        element.style.OTransform = value;
+        element.style.transform = value;
+    }
+    else if (key === "left") {
+        element.style.WebkitLeft = value;
+        element.style.MozLeft = value;
+        element.style.msLeft = value;
+        element.style.OLeft = value;
+        element.style.left = value;
     }
 }
 
@@ -848,7 +809,6 @@ Carousel.prototype.getCopy = function(node) {
     var newNode = node.cloneNode(true);
     newNode.className =  newNode.className.replace(" active", "");
     return newNode;
-
 }
 
 
