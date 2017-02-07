@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400" rel="stylesheet">
+
+    <script src="js/carousel.js"></script>
+
+    <link rel="stylesheet" href="lib/prism.css">
+</head>
+<body>
+    <div class="main">
+        <header>
+            <h1>Lightsel</h1>
+            <h3>The simpliest carousel for you and your IE8.</h3>
+        </header>
+
+        <hr>
+
+        <div class="menu">
+            <ul>
+                <li><a href="#presentation">Presentation</a></li>
+                <li><a href="#">Options</a></li>
+                <li><a href="#">API</a></li>
+                <li><a href="#">Installation</a></li>
+            </ul>
+        </div>
+
+        <hr>
+
+        <div id="presentation">
+            <h4>Short</h4>
+            <p>
+                A light and simple carousel.</br>Crossbrowser compatibility (IE8+)<br> Tested on IE8 and Safari 5.1.4 (Windows version).
+            </p>
+
+            <h4>Features</h4>
+            <ul class="features">
+                <li>Infinite spin option</li>
+                <li>Autoscroll with set delay</li>
+                <li>Filling with copies</li>
+                <li>Events</li>
+            </ul>
+
+
+            <h4>Design</h4>
+            <p>
+                Lightsel has no design. </br> You design the way you want.</br> It requires minimal work and css knowledge.
+            </p>
+
+            <h4>References</h4>
+            <ul class="references">
+                <li>
+                    <a href="https://github.com/beaverden">Author</a>
+                </li>
+                <li>
+                    <a href="mailto:rozimovschii.denis@yahoo.com">Hugs and bugs</a>
+                </li>
+                <li>
+                    <a href="https://github.com/beaverden/carousel">Github repository</a>
+                </li>
+                <li>
+                    <a href="http://kenwheeler.github.io/slick/">Inspiration and thankies</a>
+                </li>
+            </ul>
+        </div>
+
+
+        <div id="options">
+            <h1>Options</h1>
+            <hr>
+            <table class="options">
+                <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>Description</td>
+                        <td>Default</td>
+                        <td>Values</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>id</td>
+                        <td>Sets a unique identifier for a specific instance of lightsel</td>
+                        <td>lightsel1</td>
+                        <td>alphanumeric</td>
+                    </tr>
+                    <tr>
+                        <td>infiniteSpin</td>
+                        <td>If true, the user will be able to infinitely spin in both directions</td>
+                        <td>false</td>
+                        <td>true, false</td>
+                    </tr>
+                    <tr>
+                        <td>autoscroll</td>
+                        <td>If true, lightsel will move the active class to the next item in a set interval (autoscroll_interval)</td>
+                        <td>false</td>
+                        <td>true, false</td>
+                    </tr>
+                    <tr>
+                        <td>autoscroll_interval</td>
+                        <td>Sets the interval of autoscrolling</td>
+                        <td>3000</td>
+                        <td>milliseconds</td>
+                    </tr>
+                    <tr>
+                        <td>fillWithCopies</td>
+                        <td>Fills with copies of the elements until the container is full</td>
+                        <td>false</td>
+                        <td>true, false</td>
+                    </tr>
+                    <tr>
+                        <td>spinOnLessObjects</td>
+                        <td>Allows the user to spin the lightsel even if the container is not overflown</td>
+                        <td>false</td>
+                        <td>true, false</td>
+                    </tr>
+                    <tr>
+                        <td>arrowHoldInterval</td>
+                        <td>If you hold the arrow buttons, this parameter sets the time of the setInterval function that changes the active object (less time - faster speed)</td>
+                        <td>100</td>
+                        <td>milliseconds</td>
+                    </tr>
+
+                    <tr>
+                        <td>events</td>
+                        <td>If set to true, events will pop-up after user actions. </td>
+                        <td>true</td>
+                        <td>true, false</td>
+                    </tr>
+
+                   <tr>
+                        <td>inertionStartSpeed</td>
+                        <td>The speed of the moving part after a drag has been made</td>
+                        <td>20</td>
+                        <td>pixels</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <h1>Events</h1>
+            <hr>
+            <table class="events">
+                <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>Description</td>
+                        <td>Information</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="object_clicked">lightsel_objectClicked</td>
+                        <td>Gets fired when an object is clicked</td>
+                        <td>detail.lightselID, <br>detail.objectID</td>
+                    </tr>
+                    <tr>
+                        <td id="drag_start">lightsel_dragStart</td>
+                        <td>Appears when the lightsel drag has started</td>
+                        <td>detail.lightselID</td>
+                    </tr>
+                    <tr>
+                        <td id="drag_end">lightsel_dragEnd</td>
+                        <td>Appears when the lightsel drag has ended</td>
+                        <td>detail.lightselID</td>
+                    </tr>
+                    <tr>
+                        <td id="dragged">lightsel_dragged</td>
+                        <td>Appears when the lightsel is dragged</td>
+                        <td>detail.lightselID, <br>detail.dragAmount (pixels)</td>
+                    </tr>
+                    <tr>
+                        <td id="moved">lightsel_moved</td>
+                        <td>Appears when the lightsel has moved</td>
+                        <td>detail.lightselID, <br>detail.moveAmount (pixels)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div id="lightsel_events" class="lightsel">
+            <div class="control-wrapper">
+                <button class="arrow lightsel-left">
+                    <div class="arrow-inner">
+                        ‹
+                    </div>
+                </button>
+
+                <div class="moving-wrapper">
+                    <div class="moving" style="transform: translate3d(0px, 0px, 0px); left: 0px;">
+                        <div class="object" data-id="1">1</div>
+                        <div class="object" data-id="2">2</div>
+                        <div class="object" data-id="3">3</div>
+                        <div class="object" data-id="4">4</div>
+
+                    </div>
+                </div>
+
+                <button class="arrow lightsel-right">
+                    <div class="arrow-inner">
+                        ›
+                    </div>
+                </button>
+            </div>
+        </div>
+
+
+    </div>
+    <script type="text/javascript">
+
+        var spin = new Lightsel(
+            {
+                id: "lightsel_events",
+                infiniteSpin: true,
+                events: true
+            }
+        );
+
+
+    </script>
+    <script src="js/app.js"></script>
+    <script src="lib/prism.js"></script>
+</body>
+</html>

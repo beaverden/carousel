@@ -7,20 +7,20 @@
 // Autoscroll delay
 
 //Firing events:
-//objectClicked -> detail,carouselId, detail.objectId
-//carouselDragStart -> detail.carouselId
-//carouselDragEnd -> detail.carouselId
-//carouselDragged -> detail.carouselId, detail.dragAmount
-//carouselMoved -> detail.carouselId, detail.moveAmount
+//lightsel_objectClicked -> detail.leightselID, detail.objectId
+//lightsel_dragStart -> detail.leightselID
+//lightsel_dragEnd -> detail.leightselID
+//lightsel_dragged -> detail.leightselID, detail.dragAmount
+//lightsel_moved -> detail.leightselID, detail.moveAmount
 
 /* Notes
     element.children in IE8 returns comment nodes
 */
-var Carousel = window.Carousel || {};
+var Lightsel = window.Lightsel || {};
 
 
-Carousel = (function() {
-    function Carousel(import_settings) {
+Lightsel = (function() {
+    function Lightsel(import_settings) {
         this.settings = {
             //If the use can spin infinitely to the right or left
             infiniteSpin: false,
@@ -31,24 +31,24 @@ Carousel = (function() {
             realLast: null,
             realLastID: 0,
             copyLast: null,
-            //If the carousel scroll automatically
+            //If the lightsel scrolls automatically
             autoscroll: false,
             autoscroll_interval: 3000,
 
             //If there are not enough objects to fill the container, it will create copies of it
-            fillWithCopies: true,
+            fillWithCopies: false,
             filledWithCopies: false,
 
-            //If the user is allowed to spin the carousel if the objects fill entirely
+            //If the user is allowed to spin the lightsel if the objects fill entirely
             //in the container and don't overflow
-            spinOnLessObjects: true,
+            spinOnLessObjects: false,
 
-            id: "carousel1",
+            id: "lightsel1",
 
             //The amount of time that is passed to the
             //SetInterval function that changes object every iteration
             //When the arrow button is holded (mouse pressed)
-            arrowHoldChangeObjectInterval: 100,
+            arrowHoldInterval: 100,
 
 
 
@@ -57,7 +57,7 @@ Carousel = (function() {
             events: true,
 
             //Global objects
-            carousel: null,
+            lightsel: null,
             movingWrapper: null,
             moving: null,
             objects: null,
@@ -81,90 +81,40 @@ Carousel = (function() {
             this.settings[key] = import_settings[key];
         }
 
-
         var _ = this;
 
-        _.init();
+        _.Init();
 
-        //PUBLIC API
-            /*
-        this.next = function(callback) {
-            setActiveAndShow(_.settings.mainElement, getNextObjectId());
-
-            if (typeof callback !== 'undefined') {
-               callback();
-            }
-        }
-
-        this.previous = function(callback) {
-            setActiveAndShow(_.settings.mainElement, getPreviousObjectId());
-
-            if (typeof callback !== 'undefined') {
-               callback();
-            }
-        }
-
-        this.setActiveObject = function(newActive, callback) {
-            setActive(_.settings.mainElement, newActive);
-
-            if (typeof callback !== 'undefined') {
-               callback();
-            }
-        }
-
-        this.getCurrentActiveObject = function() {
-            return _.settings.currentActiveObject;
-        }
-
-        this.showObject = function(objId, callback) {
-            showObject(_.settings.mainElement, objId);
-
-            if (typeof callback !== 'undefined') {
-               callback();
-            }
-        }
-
-
-        this.addObject = function(object, place, callback) {
-
-            var main = _.settings.mainElement;
-            var moving = main.querySelector(".moving");
-
-
-            if (typeof callback !== 'undefined') {
-               callback();
-            }
-        }
-        */
     }
 
-    return Carousel;
+    return Lightsel;
 
 }());
 
 
-Carousel.prototype.init = function() {
+Lightsel.prototype.Init = function() {
     var _ = this;
 
      //Main container
-    _.settings.carousel = document.getElementById(_.settings.id);
 
-    _.settings.movingWrapper = _.settings.carousel.querySelector(".moving-wrapper");
-    _.settings.moving = _.settings.carousel.querySelector(".moving");
-    _.settings.objects = _.settings.carousel.querySelectorAll(".object");
+    _.settings.lightsel = document.getElementById(_.settings.id);
+
+    _.settings.movingWrapper = _.settings.lightsel.querySelector(".moving-wrapper");
+    _.settings.moving = _.settings.lightsel.querySelector(".moving");
+    _.settings.objects = _.settings.lightsel.querySelectorAll(".object");
 
 
     //Total number of objects
     _.settings.totalObjects = _.settings.movingWrapper.children.length;
 
     //Arrows
-    _.settings.toFirst = _.settings.carousel.querySelector(".carousel-left");
-    _.settings.toLast = _.settings.carousel.querySelector(".carousel-right");
+    _.settings.toFirst = _.settings.lightsel.querySelector(".lightsel-left");
+    _.settings.toLast = _.settings.lightsel.querySelector(".lightsel-right");
 
-    var elem = _.settings.carousel;
+    var elem = _.settings.lightsel;
 
     if (elem === 'undefined') {
-        console.log("Wrong carousel id");
+        console.log("Wrong lightsel id");
     }
 
     if (_.settings.events == false) {
@@ -172,30 +122,28 @@ Carousel.prototype.init = function() {
     }
 
     if (_.settings.fillWithCopies) {
-        _.fillWithCopies();
+        _.FillWithCopies();
     }
 
-    _.settings.hasTransform = _.detectCSSFeature("transform");
+    _.settings.hasTransform = _.DetectCSSFeature("transform");
 
     _.settings.totalObjects = _.settings.objects.length;
 
     if (_.settings.infiniteSpin) {
         if (!_.settings.filledWithCopies) {
-            _.fillWithCopies();
+            _.FillWithCopies();
         }
-        _.infiniteSpin();
+        _.InfiniteSpin();
     }
 
     //Add click events to objects
-    _.clickEvents();
+    _.ClickEvents();
 
-    _.dragEvents();
+    _.DragEvents();
 
-    _.clickEventsArrows();
+    _.ClickEventsArrows();
 
-    _.holdArrowsEvents();
-
-    _.keyBoardArrowsEvent();
+    _.HoldArrowsEvents();
 
 
 }
@@ -206,7 +154,7 @@ Carousel.prototype.init = function() {
 /* EVENTS */
 //Generate custom events
 //As well as dispatches them
-Carousel.prototype.genEventAndDispatch = function(name, detail) {
+Lightsel.prototype.GenEventAndDispatch = function(name, detail) {
     var _ = this;
 
     if (_.settings.events) {
@@ -216,24 +164,23 @@ Carousel.prototype.genEventAndDispatch = function(name, detail) {
                 bubbles: true,
                 cancelable: true,
             });
-            _.settings.carousel.dispatchEvent(e);
+            _.settings.lightsel.dispatchEvent(e);
         }
     }
 }
 
-//Adds click events to the objects of the carousel
-//Clicking them will also generate an event [objectClicked]
-Carousel.prototype.clickEvents = function() {
+//Adds click events to the objects of the lightsel
+//Clicking them will also generate an event [lightsel_objectClicked]
+Lightsel.prototype.ClickEvents = function() {
     var _ = this;
     var clickAction = function(event) {
         var object = event.srcElement ? event.srcElement : event.target;
-
-        _.genEventAndDispatch("objectClicked", {
-                carouselId: _.settings.id,
+        _.GenEventAndDispatch("lightsel_objectClicked", {
+                lightselID: _.settings.id,
                 objectId: object.getAttribute("data-id"),
         });
         var newCurrent = parseInt(object.getAttribute("data-id"));
-        _.setActive(newCurrent);
+        _.SetActive(newCurrent);
     }
 
     for (var i = 0; i<_.settings.objects.length; i++) {
@@ -249,13 +196,13 @@ Carousel.prototype.clickEvents = function() {
     }
 }
 
-//Adds drag functionality to the carousel
-//Drag start will fire and even [carouselDragStart]
-//Dragging will fire the event [carouselDragged]
-//End of dragging will fire [carouselDragEnd]
-Carousel.prototype.dragEvents = function() {
+//Adds drag functionality to the lightsel
+//Drag start will fire and even [lightsel_dragStart]
+//Dragging will fire the event [lightsel_dragged]
+//End of dragging will fire [lightsel_dragEnd]
+Lightsel.prototype.DragEvents = function() {
     var _ = this;
-    var elem = _.settings.carousel;
+    var elem = _.settings.lightsel;
     var moving = _.settings.moving;
     var movingWrapper = _.settings.movingWrapper;
     var lastDiff = 0;
@@ -269,8 +216,8 @@ Carousel.prototype.dragEvents = function() {
 
         if (!event) event = window.event;
 
-        _.genEventAndDispatch("carouselDragStart", {
-                carouselId: elem.id
+        _.GenEventAndDispatch("lightsel_dragStart", {
+                lightselID: elem.id
         });
 
         var currPos = event.clientX;
@@ -286,12 +233,12 @@ Carousel.prototype.dragEvents = function() {
             currPos = eventPos;
             lastDiff = diff;
 
-            _.genEventAndDispatch("carouselDragged", {
-                carouselId: _.settings.carousel.id,
+            _.GenEventAndDispatch("lightsel_dragged", {
+                lightselID: _.settings.lightsel.id,
                 dragAmout: diff,
             });
 
-            _.translateMoving(diff);
+            _.TranslateMoving(diff);
         }
 
         document.onmouseup = function(event) {
@@ -301,12 +248,12 @@ Carousel.prototype.dragEvents = function() {
             document.onmouseup = null;
 
             //Fire dragEnd event
-            _.genEventAndDispatch("carouselDragEnd", {
-                carouselId: _.settings.carousel.id
+            _.GenEventAndDispatch("lightsel_dragEnd", {
+                lightselID: _.settings.lightsel.id
             });
 
             if (Math.abs(lastDiff) > 3) {
-                _.spinInertion(lastDiff);
+                _.SpinInertion(lastDiff);
             }
             lastDiff = 0;
 
@@ -319,100 +266,101 @@ Carousel.prototype.dragEvents = function() {
 };
 
 
-//Left and right keyboard arrows will do the same
-//What left and right interface arrows do
-Carousel.prototype.keyBoardArrowsEvent = function() {
-    var _ = this;
-
-    _.settings.carousel.onkeydown = function(e) {
-        var key = e.which || e.keyCode;
-
-        if ( key == 37) {
-            _.setActiveAndShow(_.getPreviousObjectId(), false);
-        } else if (key == 39) {
-            _.setActiveAndShow(_.getNextObjectId(), false);
-        }
-    }
-}
-
 //  Adds click events on left and right arrows
-//  tofirst - the arrow that moves the carousel to the first item
-//  tolast - the arrow that moves the carousel to the last item
-Carousel.prototype.clickEventsArrows = function() {
+//  tofirst - the arrow that moves the lightsel to the first item
+//  tolast - the arrow that moves the lightsel to the last item
+Lightsel.prototype.ClickEventsArrows = function() {
     var _ = this,
         toFirst = _.settings.toFirst,
         toLast  = _.settings.toLast;
 
+    //If neither toFirst nor toLast is set, the code will not execute
+    if (
+        (toFirst || toLast) &&
+        toFirst.addEventListener || toLast.addEventListener
+       ) {
 
-    if (toFirst.addEventListener) {
+        if (toFirst) {
+            toFirst.addEventListener("click", function() {
+                _.SetActiveAndShow(_.GetPreviousObjectId(), false);
+            });
+        }
 
-        toFirst.addEventListener("click", function() {
-            _.setActiveAndShow(_.getPreviousObjectId(), false);
-        });
-
-        toLast.addEventListener("click", function() {
-            _.setActiveAndShow(_.getNextObjectId(), false);
-        });
+        if (toLast) {
+            toLast.addEventListener("click", function() {
+                _.SetActiveAndShow(_.GetNextObjectId(), false);
+            });
+        }
 
     } else {
 
-        toFirst.attachEvent("onclick", function() {
-            _.setActiveAndShow(_.getPreviousObjectId(), false);
-        });
+        if (toFirst) {
+            toFirst.attachEvent("onclick", function() {
+                _.SetActiveAndShow(_.GetPreviousObjectId(), false);
+            });
+        }
 
-        toLast.attachEvent("onclick", function() {
-            _.setActiveAndShow(_.getNextObjectId(), false);
-        });
+        if (toLast) {
+            toLast.attachEvent("onclick", function() {
+                _.SetActiveAndShow(_.GetNextObjectId(), false);
+            });
+        }
     }
 }
 
 //Events of holding the mouse on the left and right arrows
-Carousel.prototype.holdArrowsEvents = function() {
+Lightsel.prototype.HoldArrowsEvents = function() {
     var _ = this,
         toFirst = _.settings.toFirst,
         toLast  = _.settings.toLast;
 
-    toFirst.onmousedown = function() {
+    if (toFirst) {
+       toFirst.onmousedown = function() {
 
-        var timer = setInterval(function() {
-            _.setActiveAndShow(_.getPreviousObjectId(), false);
-        },  _.settings.arrowHoldChangeObjectInterval);
+            var timer = setInterval(function() {
+                _.SetActiveAndShow(_.GetPreviousObjectId(), false);
+            },  _.settings.arrowHoldInterval);
 
-        toFirst.onmouseup = function() {
-            clearInterval(timer);
-        }
-        toFirst.onmouseout = function() {
-            clearInterval(timer);
+            toFirst.onmouseup = function() {
+                clearInterval(timer);
+            }
+            toFirst.onmouseout = function() {
+                clearInterval(timer);
+            }
         }
     }
 
-    toLast.onmousedown = function() {
 
-        var timer = setInterval(function() {
-            _.setActiveAndShow(_.getNextObjectId(), false);
-        },  _.settings.arrowHoldChangeObjectInterval);
+    if (toLast) {
+        toLast.onmousedown = function() {
 
-        toLast.onmouseup = function() {
-            clearInterval(timer);
+            var timer = setInterval(function() {
+                _.SetActiveAndShow(_.GetNextObjectId(), false);
+            },  _.settings.arrowHoldInterval);
+
+            toLast.onmouseup = function() {
+                clearInterval(timer);
+            }
+            toLast.onmouseout = function() {
+                clearInterval(timer);
+            }
+
         }
-        toLast.onmouseout = function() {
-            clearInterval(timer);
-        }
-
     }
+
 }
 /* END EVENTS */
 
 
 //If the object is out of the view and it should be shown,
 //This function will move the moving part with the needed amount so the object is shown
-Carousel.prototype.showObject = function(objIndex, showAsFirst) {
+Lightsel.prototype.ShowObject = function(objIndex, showAsFirst) {
 
     var _ = this,
-        elem = _.settings.carousel,
+        elem = _.settings.lightsel,
         objects = _.settings.objects,
-        movingWrapper = _.settings.carousel.querySelector(".moving-wrapper"),
-        moving = _.settings.carousel.querySelector(".moving"),
+        movingWrapper = _.settings.lightsel.querySelector(".moving-wrapper"),
+        moving = _.settings.lightsel.querySelector(".moving"),
         object = _.settings.objects[objIndex],
 
         movingWrapperRect = movingWrapper.getBoundingClientRect(),
@@ -447,14 +395,19 @@ Carousel.prototype.showObject = function(objIndex, showAsFirst) {
 
 
     if (_.settings.hasTransform) {
-        _.applyCSS(moving, "transform", "translate3d(" + nextPos + "px, 0px, 0px)");
+        _.ApplyCSS(moving, "transform", "translate3d(" + nextPos + "px, 0px, 0px)");
     }
     else {
-        _.applyCSS(moving, "left", nextPos + "px");
+        _.ApplyCSS(moving, "left", nextPos + "px");
     }
 
+    if (_.settings.currentRelativePosition != nextPos) {
+        _.GenEventAndDispatch("lightsel_moved", {
+            lightselID: _.settings.id,
+            moveAmount: Math.abs(_.settings.currentRelativePosition - nextPos)
+        })
+    }
     _.settings.currentRelativePosition = nextPos;
-
 
 }
 
@@ -462,7 +415,7 @@ Carousel.prototype.showObject = function(objIndex, showAsFirst) {
 /* SETTERS */
 //Sets the new object active and the previous one is not active anymore
 //Active keyword in the class is reserved
-Carousel.prototype.setActive = function(newActive) {
+Lightsel.prototype.SetActive = function(newActive) {
     var _ = this;
     newActive = parseInt(newActive);
 
@@ -477,12 +430,12 @@ Carousel.prototype.setActive = function(newActive) {
 }
 
 //Combines TODO
-//@showObject
-//@setActive
-Carousel.prototype.setActiveAndShow = function(objId, showAsFirst) {
+//@ShowObject
+//@SetActive
+Lightsel.prototype.SetActiveAndShow = function(objId, showAsFirst) {
     var _ = this;
-    _.setActive(objId);
-    _.showObject(objId, showAsFirst);
+    _.SetActive(objId);
+    _.ShowObject(objId, showAsFirst);
 }
 
 /* END SETTERS */
@@ -492,7 +445,7 @@ Carousel.prototype.setActiveAndShow = function(objId, showAsFirst) {
 /* GETTERS */
 
 //Returns the Id the of the object that is previous to the current one
-Carousel.prototype.getPreviousObjectId = function() {
+Lightsel.prototype.GetPreviousObjectId = function() {
     var _ = this;
     var currentActive = _.settings.currentActiveObject;
     if (currentActive > 0) {
@@ -503,7 +456,7 @@ Carousel.prototype.getPreviousObjectId = function() {
 }
 
 //Returns the Id the of the object that is next to the current one
-Carousel.prototype.getNextObjectId = function() {
+Lightsel.prototype.GetNextObjectId = function() {
     var _ = this;
     var currentActive = _.settings.currentActiveObject;
     if (currentActive < _.settings.totalObjects - 1) {
@@ -518,12 +471,12 @@ Carousel.prototype.getNextObjectId = function() {
 /*
 Makes three copies of the initial array
 COPYLEFT | MAIN | COPYRIGHT
-copyFirst .. | realFirst .. realLast | .. copyLast
+copyFirst .. | realFSirst .. realLast | .. copyLast
 when copyFirst or copyLast gets reached by the spin
 the main moving part gets reseted to it's real copy,
 this way, you can infinitely spin in the same direction
 */
-Carousel.prototype.infiniteSpin = function() {
+Lightsel.prototype.InfiniteSpin = function() {
     var _ = this,
         moving = _.settings.moving,
         currArray = _.settings.objects,
@@ -569,12 +522,12 @@ Carousel.prototype.infiniteSpin = function() {
     _.settings.objects = newArray;
     _.settings.totalObjects = newArray.length;
     _.settings.currentActiveObject = _.settings.realFirstID;
-    _.clickEvents();
-    _.setActiveAndShow(_.settings.realFirstID, true);
+    _.ClickEvents();
+    _.SetActiveAndShow(_.settings.realFirstID, true);
 
 }
 
-Carousel.prototype.copyElementsReached = function() {
+Lightsel.prototype.CopyElementsReached = function() {
 
     var _ = this,
         copyFirst = _.settings.copyFirst,
@@ -596,11 +549,11 @@ Carousel.prototype.copyElementsReached = function() {
         movingWRectPosLast  = movingWRect.right;
 
     if (copyFirstPos > movingWRectPosFirst) {
-        _.showObject(_.settings.realLastID, false);
+        _.ShowObject(_.settings.realLastID, false);
         return true;
     }
     if (copyLastPos < movingWRectPosLast) {
-        _.showObject(_.settings.realFirstID, false);
+        _.ShowObject(_.settings.realFirstID, false);
         return true;
     }
     return false;
@@ -610,21 +563,21 @@ Carousel.prototype.copyElementsReached = function() {
 //Moves the "moving" element of the structure.
 //It goes to the left in the positive direction or in the negative,
 //Respectively moving left and right
-//It will fire the [carouselMoved] event
-Carousel.prototype.translateMoving = function(diff) {
+//It will fire the [lightsel_moved] event
+Lightsel.prototype.TranslateMoving = function(diff) {
     var _ = this;
 
     var moving = _.settings.moving;
     var movingWrapper = _.settings.movingWrapper;
-    var elem = _.settings.carousel;
+    var elem = _.settings.lightsel;
 
-    if (_.settings.infiniteSpin && _.copyElementsReached()) {
+    if (_.settings.infiniteSpin && _.CopyElementsReached()) {
         return true;
     }
 
-    if (_.checkInterval(diff)) {
-        _.genEventAndDispatch("carouselMoved", {
-            carouselId: elem.id,
+    if (_.CheckInterval(diff)) {
+        _.GenEventAndDispatch("lightsel_moved", {
+            lightselID: elem.id,
             moveAmount: diff,
         });
 
@@ -633,20 +586,20 @@ Carousel.prototype.translateMoving = function(diff) {
         //If vertical, move top
         _.settings.currentRelativePosition += diff;
         if (_.settings.hasTransform) {
-            _.applyCSS(moving, "transform", "translate3d("+ _.settings.currentRelativePosition +"px, 0px, 0px)");
+            _.ApplyCSS(moving, "transform", "translate3d("+ _.settings.currentRelativePosition +"px, 0px, 0px)");
         } else {
-            _.applyCSS(moving, "left", _.settings.currentRelativePosition + "px");
+            _.ApplyCSS(moving, "left", _.settings.currentRelativePosition + "px");
         }
     }
 }
 
 //Adds inertion moving after the spin
-Carousel.prototype.spinInertion = function(lastDiff) {
+Lightsel.prototype.SpinInertion = function(lastDiff) {
     var _ = this;
     var diff = (lastDiff < 0) ? -(_.settings.inertionStartSpeed) : _.settings.inertionStartSpeed;
 
     var timer = setInterval(function() {
-        _.translateMoving(diff);
+        _.TranslateMoving(diff);
 
         if (diff == 0) {
             clearInterval(timer);
@@ -658,7 +611,7 @@ Carousel.prototype.spinInertion = function(lastDiff) {
 }
 
 //Checks is the moving part is actually movable
-Carousel.prototype.checkInterval = function(diff) {
+Lightsel.prototype.CheckInterval = function(diff) {
     var _ = this;
 
     var movingWrapper = _.settings.movingWrapper;
@@ -705,7 +658,7 @@ Carousel.prototype.checkInterval = function(diff) {
 
 }
 
-Carousel.prototype.fillWithCopies = function() {
+Lightsel.prototype.FillWithCopies = function() {
 
 
     var _ = this,
@@ -738,7 +691,7 @@ Carousel.prototype.fillWithCopies = function() {
 
         if (lastParam < movingWParam) {
 
-            var newNode = _.getCopy(_.settings.objects[currentIndex]);
+            var newNode = _.GetCopy(_.settings.objects[currentIndex]);
 
             newObjectArray.push(newNode);
             _.settings.moving.appendChild(newNode);
@@ -753,7 +706,7 @@ Carousel.prototype.fillWithCopies = function() {
     }
 
     while (currentIndex < _.settings.objects.length) {
-        var newNode = _.getCopy(_.settings.objects[currentIndex]);
+        var newNode = _.GetCopy(_.settings.objects[currentIndex]);
 
         newObjectArray.push(newNode);
         _.settings.moving.appendChild(newNode);
@@ -764,7 +717,7 @@ Carousel.prototype.fillWithCopies = function() {
 
 
 //Accepts as keys only transform, left, right
-Carousel.prototype.applyCSS = function(element, key, value) {
+Lightsel.prototype.ApplyCSS = function(element, key, value) {
 
     if (key == "transform") {
         element.style.WebkitTransform = value;
@@ -782,7 +735,7 @@ Carousel.prototype.applyCSS = function(element, key, value) {
     }
 }
 
-Carousel.prototype.detectCSSFeature = function(featurename){
+Lightsel.prototype.DetectCSSFeature = function(featurename){
     var feature = false,
     domPrefixes = 'Webkit Moz ms O'.split(' '),
     elm = document.createElement('div'),
@@ -804,7 +757,7 @@ Carousel.prototype.detectCSSFeature = function(featurename){
     return feature;
 }
 
-Carousel.prototype.getCopy = function(node) {
+Lightsel.prototype.GetCopy = function(node) {
 
     var newNode = node.cloneNode(true);
     newNode.className =  newNode.className.replace(" active", "");
@@ -812,6 +765,48 @@ Carousel.prototype.getCopy = function(node) {
 }
 
 
+//PUBLIC API
+
+Lightsel.prototype.next = function(callback, showAsFirst) {
+    this.SetActiveAndShow(this.GetNextObjectId(), showAsFirst);
+
+    if (typeof callback !== 'undefined') {
+       callback();
+    }
+}
+
+Lightsel.prototype.previous = function(callback, showAsFirst) {
+    this.SetActiveAndShow(this.GetPreviousObjectId(), showAsFirst);
+
+    if (typeof callback !== 'undefined') {
+       callback();
+    }
+}
+
+Lightsel.prototype.setObjectActive = function(newActiveID, callback) {
+    this.SetActive(newActiveID);
+
+    if (typeof callback !== 'undefined') {
+       callback();
+    }
+}
+
+Lightsel.prototype.getCurrentActiveObject = function(callback) {
+    return this.settings.currentActiveObject;
+
+    if (typeof callback !== 'undefined') {
+       callback();
+    }
+}
+
+
+Lightsel.prototype.showObject = function(objectID, showAsFirst, callback) {
+    showObject(objId, showAsFirst);
+
+    if (typeof callback !== 'undefined') {
+       callback();
+    }
+}
 
 
 
