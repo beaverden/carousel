@@ -67,6 +67,8 @@ Lightsel = (function() {
             //The decaying of the inertion after a drag
             inertionStartSpeed: 20,
 
+            dragStarted: false,
+
             //local
             totalObjects: 0,
             previousActiveObject: -1,
@@ -136,6 +138,13 @@ Lightsel.prototype.Init = function() {
         _.InfiniteSpin();
     }
 
+
+    if (_.settings.autoscroll) {
+        setInterval(function() {
+            _.SetActiveAndShow(_.GetNextObjectId());
+        }, _.settings.autoscroll_interval);
+    }
+
     //Add click events to objects
     _.ClickEvents();
 
@@ -174,13 +183,13 @@ Lightsel.prototype.GenEventAndDispatch = function(name, detail) {
 Lightsel.prototype.ClickEvents = function() {
     var _ = this;
     var clickAction = function(event) {
-        var object = event.srcElement ? event.srcElement : event.target;
+        var object = this;
         _.GenEventAndDispatch("lightsel_objectClicked", {
                 lightselID: _.settings.id,
                 objectId: object.getAttribute("data-id"),
         });
         var newCurrent = parseInt(object.getAttribute("data-id"));
-        _.SetActive(newCurrent);
+        _.SetActiveAndShow(newCurrent);
     }
 
     for (var i = 0; i<_.settings.objects.length; i++) {
@@ -216,9 +225,7 @@ Lightsel.prototype.DragEvents = function() {
 
         if (!event) event = window.event;
 
-        _.GenEventAndDispatch("lightsel_dragStart", {
-                lightselID: elem.id
-        });
+
 
         var currPos = event.clientX;
 
@@ -233,10 +240,20 @@ Lightsel.prototype.DragEvents = function() {
             currPos = eventPos;
             lastDiff = diff;
 
-            _.GenEventAndDispatch("lightsel_dragged", {
-                lightselID: _.settings.lightsel.id,
-                dragAmout: diff,
-            });
+            if (Math.abs(lastDiff) > 0) {
+                _.GenEventAndDispatch("lightsel_dragged", {
+                    lightselID: _.settings.lightsel.id,
+                    dragAmout: diff,
+                });
+
+                if (!_.settings.dragStarted) {
+                    _.settings.dragStarted = true;
+                    _.GenEventAndDispatch("lightsel_dragStart", {
+                        lightselID: elem.id
+                    });
+                }
+            }
+
 
             _.TranslateMoving(diff);
         }
@@ -247,10 +264,14 @@ Lightsel.prototype.DragEvents = function() {
             document.onmousemove = null;
             document.onmouseup = null;
 
-            //Fire dragEnd event
-            _.GenEventAndDispatch("lightsel_dragEnd", {
-                lightselID: _.settings.lightsel.id
-            });
+            if (_.settings.dragStarted) {
+                //Fire dragEnd event
+                _.GenEventAndDispatch("lightsel_dragEnd", {
+                    lightselID: _.settings.lightsel.id
+                });
+                _.settings.dragStarted = false;
+            }
+
 
             if (Math.abs(lastDiff) > 3) {
                 _.SpinInertion(lastDiff);
@@ -276,8 +297,7 @@ Lightsel.prototype.ClickEventsArrows = function() {
 
     //If neither toFirst nor toLast is set, the code will not execute
     if (
-        (toFirst || toLast) &&
-        toFirst.addEventListener || toLast.addEventListener
+        (toFirst && toFirst.addEventListener) || (toLast && toLast.addEventListener)
        ) {
 
         if (toFirst) {
@@ -485,6 +505,7 @@ Lightsel.prototype.InfiniteSpin = function() {
 
     for (var i = 0; i<currArray.length; i++) {
         var newNode = currArray[i].cloneNode(true);
+        newNode.className = newNode.className.replace(" active", "");
         newArray.push(newNode);
     }
     _.settings.copyFirst = newArray[0]; // the first element in the array that
@@ -494,7 +515,7 @@ Lightsel.prototype.InfiniteSpin = function() {
 
     for (var i = 0; i<currArray.length; i++) {
         var newNode = currArray[i].cloneNode(true);
-        newNode.className = newNode.className.replace(" active","");
+        newNode.className = newNode.className.replace(" active", "");
         newArray.push(newNode);
         if (i == 0) {
             showNode = newArray.length - 1;
@@ -507,6 +528,7 @@ Lightsel.prototype.InfiniteSpin = function() {
 
     for (var i = 0; i<currArray.length; i++) {
         var newNode = currArray[i].cloneNode(true);
+        newNode.className = newNode.className.replace(" active", "");
         newArray.push(newNode);
     }
     _.settings.copyLast = newArray[newArray.length-1];
@@ -692,7 +714,7 @@ Lightsel.prototype.FillWithCopies = function() {
         if (lastParam < movingWParam) {
 
             var newNode = _.GetCopy(_.settings.objects[currentIndex]);
-
+            newNode.className = newNode.className.replace(" active", "");
             newObjectArray.push(newNode);
             _.settings.moving.appendChild(newNode);
             currentIndex++;
@@ -707,7 +729,7 @@ Lightsel.prototype.FillWithCopies = function() {
 
     while (currentIndex < _.settings.objects.length) {
         var newNode = _.GetCopy(_.settings.objects[currentIndex]);
-
+        newNode.className = newNode.className.replace(" active", "");
         newObjectArray.push(newNode);
         _.settings.moving.appendChild(newNode);
         currentIndex++;
@@ -783,7 +805,7 @@ Lightsel.prototype.previous = function(callback, showAsFirst) {
     }
 }
 
-Lightsel.prototype.setObjectActive = function(newActiveID, callback) {
+Lightsel.prototype.setObjectActive = function(callback, newActiveID) {
     this.SetActive(newActiveID);
 
     if (typeof callback !== 'undefined') {
@@ -792,15 +814,14 @@ Lightsel.prototype.setObjectActive = function(newActiveID, callback) {
 }
 
 Lightsel.prototype.getCurrentActiveObject = function(callback) {
-    return this.settings.currentActiveObject;
 
     if (typeof callback !== 'undefined') {
-       callback();
+       callback(this.settings.currentActiveObject);
     }
 }
 
 
-Lightsel.prototype.showObject = function(objectID, showAsFirst, callback) {
+Lightsel.prototype.showObject = function(callback, objectID, showAsFirst) {
     showObject(objId, showAsFirst);
 
     if (typeof callback !== 'undefined') {
@@ -808,6 +829,11 @@ Lightsel.prototype.showObject = function(objectID, showAsFirst, callback) {
     }
 }
 
+Lightsel.prototype.getObjects = function(callback) {
+    if (typeof callback !== 'undefined') {
+       callback(this.settings.objects);
+    }
+}
 
 
 
