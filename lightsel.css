@@ -1,0 +1,47 @@
+.lightsel {
+  position: relative;
+  font-size: 0;
+  width: 100%;
+}
+
+.lightsel .control-wrapper {
+  position: relative;
+}
+
+.lightsel .arrow {
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+.lightsel .moving-wrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.lightsel .moving {
+  display: table;
+  position: relative;
+  left: 0;
+
+  margin: 0 auto;
+  white-space: nowrap;
+
+  transition: all 0s ease;
+
+}
+
+.lightsel .object {
+  display: inline-block;
+
+  cursor: pointer;
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  white-space: nowrap;
+  outline: none;
+}
