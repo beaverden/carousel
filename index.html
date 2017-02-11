@@ -10,8 +10,11 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Raleway:300,400" rel="stylesheet">
 
+    <link rel="stylesheet" href="lib/highlight/styles/github.css">
+    <script src="lib/highlight/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
     <link rel="stylesheet" href="lib/lightsel/lightsel.css">
-    <link rel="stylesheet" href="lib/prism/prism.css">
 </head>
 <body>
     <div class="main">
@@ -27,7 +30,7 @@
                 <li><a href="#installation">Installation</a></li>
                 <li><a href="#options">Options</a></li>
                 <li><a href="#api">API</a></li>
-                <li><a href="#examples">Examples</a></li>
+                <li><a href="#examples">Example</a></li>
             </ul>
         </nav>
 
@@ -75,11 +78,42 @@
             <hr></hr>
             <div class="installation-menu">
                 <ul>
-                    <li><a href="https://raw.githubusercontent.com/beaverden/lightsel/master/css/lightsel.css" target="_blank">css</a></li>
-                    <li><a href="https://raw.githubusercontent.com/beaverden/lightsel/master/js/lightsel.js" target="_blank">js</a></li>
-                    <li><a href="https://raw.githubusercontent.com/beaverden/lightsel/master/js/lightsel.min.js" target="_blank">min.js</a></li>
+                    <li>
+                        <a href="https://github.com/beaverden/lightsel/archive/master.zip" target="_blank">full</a>
+                    </li>
+                    <li><a href="https://raw.githubusercontent.com/beaverden/lightsel/master/lightsel.css" target="_blank">css</a></li>
+                    <li><a href="https://raw.githubusercontent.com/beaverden/lightsel/master/lightsel.js" target="_blank">js</a></li>
+                    <li><a href="https://raw.githubusercontent.com/beaverden/lightsel/master/lightsel.min.js" target="_blank">min.js</a></li>
                 </ul>
             </div>
+            <pre><code class="html">
+&lthead&gt
+    &lt!-- ... --&gt
+    &ltlink rel="stylesheet" href="lightsel.css"&gt
+    &lt!-- ... --&gt
+&lt/head&gt
+
+&ltbody&gt
+    &lt!-- ... --&gt
+    &ltdiv id = "your_id" class = "lightsel"&gt
+        &ltdiv class="object"&gt&lt/div&gt
+        &ltdiv class="object"&gt&lt/div&gt
+        &ltdiv class="object"&gt&lt/div&gt
+        &ltdiv class="object"&gt&lt/div&gt
+    &lt/div&gt
+    &lt!-- ... --&gt
+
+    &ltscript src="lightsel.min.js"&gt&lt/script&gt
+    &ltscript type="text/javascript"&gt
+        var lightsel = new Lightsel({
+            // Change the default options
+            id: "your_id",
+            arrows: true
+            // ...
+        })
+    &lt/script&gt
+&lt/body&gt
+            </code></pre>
             <hr></hr>
         </div>
 
@@ -101,6 +135,12 @@
                         <td>Sets a unique identifier for a specific instance of lightsel</td>
                         <td>lightsel1</td>
                         <td>alphanumeric</td>
+                    </tr>
+                    <tr>
+                        <td>arrows</td>
+                        <td>If true, the arrows (left, right) will be added, also the "arrows" class will be added to the main element with the given <b>id</b></td>
+                        <td>false</td>
+                        <td>true, false</td>
                     </tr>
                     <tr>
                         <td>infiniteSpin</td>
@@ -198,31 +238,22 @@
 
 
         <div id="lightsel_events" class="lightsel">
-            <div class="control-wrapper">
-                <button class="arrow lightsel-left">
-                    <div class="arrow-inner">
-                        ‹
-                    </div>
-                </button>
-
-                <div class="moving-wrapper">
-                    <div class="moving" style="transform: translate3d(0px, 0px, 0px); left: 0px;">
-                        <div class="object active" data-id="1">1</div>
-                        <div class="object" data-id="2">2</div>
-                        <div class="object" data-id="3">3</div>
-                        <div class="object" data-id="4">4</div>
-
-                    </div>
-                </div>
-
-                <button class="arrow lightsel-right">
-                    <div class="arrow-inner">
-                        ›
-                    </div>
-                </button>
-            </div>
+            <div class="object">1</div>
+            <div class="object">2</div>
+            <div class="object">3</div>
+            <div class="object">4</div>
         </div>
-
+        <pre><code class="html">&ltscript type="text/javascript"&gt
+    var events = new Lightsel({
+        id: "lightsel_events",
+        arrows: true,
+        infiniteSpin: true,
+        events: true // turn on events
+    });
+    document.addEventListener("lightsel_moved", function(e) {
+        //..
+    }
+&ltscript&gt</code></pre>
 
         <div id="api">
             <h1>API</h1>
@@ -293,26 +324,36 @@
             <hr></hr>
             <div class="example1">
                 <div id="lightsel_sample1" class="lightsel">
-                    <div class="control-wrapper">
-                        <div class="moving-wrapper">
-                            <div class="moving" style="transform: translate3d(0px, 0px, 0px); left: 0px;">
-                                <div class="object active" data-id="1">
-                                    <img class="cat-image" src="images/cat1.jpg"/>
-                                </div>
-                                <div class="object" data-id="2">
-                                    <img class="cat-image" src="images/cat2.jpg"/>
-                                </div>
-                                <div class="object" data-id="3">
-                                    <img class="cat-image" src="images/cat3.jpg"/>
-                                </div>
-                                <div class="object" data-id="4">
-                                    <img class="cat-image" src="images/cat4.jpg"/>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="object">
+                        <img class="cat-image" src="images/cat1.jpg"/>
+                    </div>
+                    <div class="object">
+                        <img class="cat-image" src="images/cat2.jpg"/>
+                    </div>
+                    <div class="object">
+                        <img class="cat-image" src="images/cat3.jpg"/>
+                    </div>
+                    <div class="object">
+                        <img class="cat-image" src="images/cat4.jpg"/>
                     </div>
                 </div>
-                <pre><code class="language-markup">&ltscript type="text/javascript"&gt
+
+                <pre><code class="html">&ltdiv id="lightsel_sample1" class="lightsel"&gt
+    &ltdiv class="object"&gt
+        &ltimg class="cat-image" src="images/cat1.jpg"/&gt
+    &lt/div&gt
+    &ltdiv class="object"&gt
+        &ltimg class="cat-image" src="images/cat2.jpg"/&gt
+    &lt/div&gt
+    &ltdiv class="object"&gt
+        &ltimg class="cat-image" src="images/cat3.jpg"/&gt
+    &lt/div&gt
+    &ltdiv class="object"&gt
+        &ltimg class="cat-image" src="images/cat4.jpg"/&gt
+    &lt/div&gt
+&lt/div&gt
+
+&ltscript type="text/javascript"&gt
     var mew = new Lightsel(
         {
             id: "lightsel_sample1",
@@ -332,6 +373,7 @@
         var spin = new Lightsel(
             {
                 id: "lightsel_events",
+                arrows: true,
                 infiniteSpin: true,
                 events: true
             }
@@ -342,6 +384,7 @@
                 id: "lightsel_sample1",
                 infiniteSpin: true,
                 autoscroll: true,
+                events: false,
                 autoscroll_interval: 3000
             }
         );
@@ -349,6 +392,6 @@
 
     </script>
     <script src="js/app.js"></script>
-    <script src="lib/prism/prism.js"></script>
+
 </body>
 </html>

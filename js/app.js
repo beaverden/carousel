@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
             setTimeout(function() {
                 turnOFF("moved");
                 activeMovedTimeout = false;
+                clearTimeout(this);
             }, 500);
         }
 
@@ -60,6 +61,7 @@ document.addEventListener("DOMContentLoaded", function() {
             setTimeout(function() {
                 turnOFF("moved");
                 activeMovedTimeout = false;
+                clearTimeout(this);
             }, 500);
         }
     });
