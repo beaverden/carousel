@@ -39,15 +39,17 @@
         <div id="presentation">
             <h4>Short</h4>
             <p>
-                A light and simple carousel.</br>Crossbrowser compatibility (IE8+)<br>No additional libraries</br>Tested on IE8 and Safari 5.1.4 (Windows version).<br>~12kb of JS code while compressed.
+                A light and simple carousel</br><b>No additional</b> libraries required</br>Crossbrowser compatibility.<b> IE8+</b><br><b>12kb</b> of JS code while compressed<br>Tested on Chrome, Firefox, IE8 and Safari 5.1.4
             </p>
 
             <h4>Features</h4>
             <ul class="features">
+                <li>Events</li>
+                <li>Flexible design</li>
                 <li>Infinite spin option</li>
                 <li>Autoscroll with set delay</li>
                 <li>Filling with copies</li>
-                <li>Events</li>
+
             </ul>
 
 
@@ -250,6 +252,7 @@
         infiniteSpin: true,
         events: true // turn on events
     });
+
     document.addEventListener("lightsel_moved", function(e) {
         //..
     }
@@ -363,6 +366,19 @@
         }
     );
 &lt/script&gt</code></pre>
+                <pre><code class="css">#lightsel_sample1 .object {
+  margin: 5px;
+}
+
+#lightsel_sample1 img {
+  width: 100px;
+  height: 100px;
+  filter: grayscale(0.9);
+}
+
+#lightsel_sample1 .object.active img {
+  filter: grayscale(0);
+}</code></pre>
             </div>
         </div>
     </div>

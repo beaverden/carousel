@@ -290,7 +290,6 @@ header h1 {
 }
 
 #lightsel_sample1 img {
-  display: inline-block;
   width: 100px;
   height: 100px;
   filter: grayscale(0.9);
