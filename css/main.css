@@ -337,6 +337,14 @@ header h1 {
 
 }
 
+@media (max-width: 650px) {
+  #options,
+  .events,
+  #api {
+    display: none;
+  }
+}
+
 @media (max-width: 450px) {
   .navigation-menu ul li,
   .installation-menu ul li {
