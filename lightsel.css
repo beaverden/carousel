@@ -5,12 +5,25 @@
   width: 100%;
 }
 
+.lightsel * {
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
 .lightsel .control-wrapper {
   position: relative;
 }
 
+.lightsel.arrows .control-wrapper {
+  padding: 0px 50px;
+}
+
 .lightsel .arrow {
   position: absolute;
+  z-index: 2;
   top: 50%;
   margin-top: -20px;
   height: 40px;
@@ -23,11 +36,7 @@
   border: 1px solid #d3d3d3;
   color: #d3d3d3;
 
-  user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -o-user-select: none;
+  cursor: pointer;
 }
 
 .lightsel .arrow:hover {
@@ -59,7 +68,6 @@
   display: table;
   position: relative;
   left: 0;
-
   margin: 0 auto;
   white-space: nowrap;
 
@@ -70,12 +78,14 @@
 .lightsel .object {
   display: inline-block;
 
-  cursor: pointer;
-  user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -o-user-select: none;
   white-space: nowrap;
   outline: none;
+  cursor: pointer;
 }
+
+.lightsel .object img {
+  pointer-events: none; /* Disable image drag block in firefox */
+
+}
+
+

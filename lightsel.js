@@ -76,6 +76,9 @@ Lightsel = (function() {
             currentRelativePosition: 0,
 
             hasTransform: true,
+
+            //Whether it should have arrows or not
+            arrows: false
         };
 
         //Override the current this.settings
@@ -101,6 +104,53 @@ Lightsel.prototype.Init = function() {
 
     _.settings.lightsel = document.getElementById(_.settings.id);
 
+    //Add all the elements
+    var children_objects = _.settings.lightsel.children;
+
+    var control_wrapper = document.createElement("div");
+    control_wrapper.className = "control-wrapper";
+    var moving_wrapper = document.createElement("div");
+    moving_wrapper.className = "moving-wrapper";
+    var movingElement = document.createElement("div");
+    movingElement.className = "moving";
+    movingElement.style.transform = "translate3d(0px, 0px, 0px)";
+    movingElement.style.left = "0px";
+
+
+    while (children_objects.length > 0) {
+        movingElement.appendChild(children_objects[0]);
+    }
+    moving_wrapper.appendChild(movingElement);
+
+    if (_.settings.arrows) {
+        _.settings.lightsel.classList += " arrows";
+    }
+
+    if (_.settings.arrows) {
+        var left_arrow = document.createElement("button");
+        left_arrow.classList = "arrow lightsel-left";
+        var left_arrow_div = document.createElement("div");
+        left_arrow_div.classList = "arrow-inner";
+        left_arrow_div.innerHTML = "&lsaquo;";
+        left_arrow.appendChild(left_arrow_div);
+        control_wrapper.appendChild(left_arrow);
+    }
+
+    control_wrapper.appendChild(moving_wrapper);
+
+
+    if (_.settings.arrows) {
+        var right_arrow = document.createElement("button");
+        right_arrow.classList = "arrow lightsel-right";
+        var right_arrow_div = document.createElement("div");
+        right_arrow_div.classList = "arrow-inner";
+        right_arrow_div.innerHTML = "&rsaquo;";
+        right_arrow.appendChild(right_arrow_div);
+        control_wrapper.appendChild(right_arrow);
+    }
+    _.settings.lightsel.appendChild(control_wrapper);
+
+
     _.settings.movingWrapper = _.settings.lightsel.querySelector(".moving-wrapper");
     _.settings.moving = _.settings.lightsel.querySelector(".moving");
     _.settings.objects = _.settings.lightsel.querySelectorAll(".object");
@@ -122,6 +172,8 @@ Lightsel.prototype.Init = function() {
     if (_.settings.events == false) {
         console.log("Lightrousel: Events turned off");
     }
+
+    _.settings.objects[0].classList += " active";
 
     if (_.settings.fillWithCopies) {
         _.FillWithCopies();
@@ -220,6 +272,9 @@ Lightsel.prototype.DragEvents = function() {
     moving.onclick = function(event) {
         return false;
     }
+
+
+
 
     moving.onmousedown = function(event) {
 
