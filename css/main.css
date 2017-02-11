@@ -52,7 +52,8 @@ body, html {
 
 
 .main {
-  padding: 0px 400px;
+  width: 800px;
+  margin: 0 auto;
 }
 
 header {
@@ -299,4 +300,49 @@ header h1 {
   filter: grayscale(0);
 }
 
+
+
+@media (max-width: 1000px) {
+  .main {
+    width: auto;
+    padding: 0px 50px;
+  }
+}
+
+@media (max-width: 830px) {
+  .main {
+    width: auto;
+    padding: 0px 15px;
+  }
+
+  .navigation-menu ul li,
+  .installation-menu ul li {
+    display: block;
+    width: 40%;
+    margin: 15px auto;
+  }
+
+  .custom-table tr td:first-of-type {
+    text-align: left;
+    min-width: 160px;
+  }
+
+  .custom-table tr td:nth-of-type(2) {
+    min-width: 200px;
+  }
+
+  code.html {
+    background: transparent;
+  }
+
+}
+
+@media (max-width: 450px) {
+  .navigation-menu ul li,
+  .installation-menu ul li {
+    display: block;
+    width: 80%;
+    margin: 15px auto;
+  }
+}
 
