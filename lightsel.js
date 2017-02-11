@@ -54,7 +54,7 @@ Lightsel = (function() {
 
             //Turn on or off events
             //If the browser doesn't support events, an console error log will be written
-            events: true,
+            events: false,
 
             //Global objects
             lightsel: null,
