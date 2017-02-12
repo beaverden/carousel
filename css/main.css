@@ -293,11 +293,15 @@ header h1 {
 #lightsel_sample1 img {
   width: 100px;
   height: 100px;
+  -webkit-filter: grayscale(0.9);
+  -o-filter: grayscale(0.9);
   filter: grayscale(0.9);
 }
 
 #lightsel_sample1 .object.active img {
-  filter: grayscale(0);
+  -webkit-filter: none;
+  -o-filter: none;
+  filter: none;
 }
 
 
@@ -351,6 +355,11 @@ header h1 {
     display: block;
     width: 80%;
     margin: 15px auto;
+  }
+
+  #lightsel_sample1 img {
+    width: 50px;
+    height: 50px;
   }
 }
 
