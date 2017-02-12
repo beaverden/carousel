@@ -66,7 +66,29 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    document.addEventListener("lightsel_swipeStart", function(e) {
+        turnON("swipe_start");
+        setTimeout(function() {
+            turnOFF("swipe_start");
+            clearTimeout(this);
+        }, 500);
+    });
 
+    document.addEventListener("lightsel_swipeEnd", function(e) {
+        turnON("swipe_end");
+        setTimeout(function() {
+            turnOFF("swipe_end");
+            clearTimeout(this);
+        }, 500);
+    });
+
+    document.addEventListener("lightsel_swiped", function(e) {
+        turnON("swiped");
+        setTimeout(function() {
+            turnOFF("swiped");
+            clearTimeout(this);
+        }, 500);
+    });
 });
 
 

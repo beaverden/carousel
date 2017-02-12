@@ -39,7 +39,7 @@
         <div id="presentation">
             <h4>Short</h4>
             <p>
-                A light and simple carousel</br><b>No additional</b> libraries required</br>Crossbrowser compatibility.<b> IE8+</b><br><b>12kb</b> of JS code while compressed<br>Tested on Chrome, Firefox, IE8 and Safari 5.1.4
+                A light and simple carousel</br><b>No additional</b> libraries required</br>Crossbrowser compatibility.<b> IE8+</b><br><b>13kb</b> of JS code while compressed<br>Tested on Chrome, Firefox, IE8 and Safari 5.1.4
             </p>
 
             <h4>Features</h4>
@@ -49,6 +49,7 @@
                 <li>Infinite spin option</li>
                 <li>Autoscroll with set delay</li>
                 <li>Filling with copies</li>
+                <li>Supports swipes for mobiles</li>
 
             </ul>
 
@@ -233,6 +234,22 @@
                         <td>lightsel_moved</td>
                         <td>Appears when the lightsel has moved</td>
                         <td>detail.lightselID, <br>detail.moveAmount (pixels)</td>
+                    </tr>
+                    <tr id="swipe_start">
+                        <td>lightsel_swipeStart</td>
+                        <td>Appears when a swipe has been performed</td>
+                        <td>detail.lightselID, <br>detail.swipeAmount (pixels)</td>
+                    </tr>
+                    <tr id="swipe_end">
+                        <td>lightsel_swipeEnd</td>
+                        <td>Appears when a swipe has ended</td>
+                        <td>detail.lightselID</td>
+                    </tr>
+
+                    <tr id="swiped">
+                        <td>lightsel_swiped</td>
+                        <td>Appears when lightsel has been swiped</td>
+                        <td>detail.lightselID</td>
                     </tr>
                 </tbody>
             </table>
